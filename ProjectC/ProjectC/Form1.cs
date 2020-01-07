@@ -387,5 +387,10 @@ namespace ProjectC
 
             return prompt.ShowDialog() == DialogResult.OK ? textBox.Text : "";
         }
+
+        private void optionsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }
