@@ -52,6 +52,11 @@ namespace ProjectC
                 }
                 sw.Close();
                 MessageBox.Show("Sucessfully Exported to Employees.txt");
+                DialogResult dr = MessageBox.Show("Do you want to open the text file?", "Done", MessageBoxButtons.YesNo,MessageBoxIcon.Question);
+                if (dr == DialogResult.Yes)
+                {
+                    System.Diagnostics.Process.Start("Employee.txt");
+                }
             }
             catch (System.IO.FileNotFoundException)
             {
