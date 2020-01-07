@@ -1,0 +1,24 @@
+Name: Mahmoud Jamel
+Department: Accounting
+Status: Punched In
+Name: Kareem Saleem
+Department: IT
+Status: Punched In
+Name: Jameel Saleem
+Department: Design & Animation
+Status: Punched In
+Name: Saleem Tuffaha
+Department: IT
+Status: Punched In
+Name: Amr Darawsheh
+Department: IT
+Status: Punched In
+Name: Alina Abu Siam
+Department: IT
+Status: Punched In
+Name: Saeed Shemisan
+Department: Design & Animation
+Status: unknown
+Name: Hamzeh Oweis
+Department: Design & Animation
+Status: Punched In

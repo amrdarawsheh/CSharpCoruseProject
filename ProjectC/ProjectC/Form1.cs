@@ -12,14 +12,51 @@ namespace ProjectC
 {
     public partial class Form1 : Form
     {
+        HRSystemEntities db;
         public Form1()
         {
             InitializeComponent();
+            db = new HRSystemEntities();
         }
-  
+        
         private void exportTotxtToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            try
+            {
+                var employees = db.Employees.ToList();
+                var sw = new System.IO.StreamWriter("Employee.txt");
+                if (employees.Count() == 0)
+                {
+                    sw.WriteLine("No Records");
+                }
+                else
+                {
+                    foreach (var emp in employees)
+                    {
+                        var fullname = emp.firstname + " " + emp.lastname;
+                        var depname = emp.Department.Name;
+                        var lastPunch = emp.PunchInOuts.LastOrDefault();
+                        var status = "";
+                        if (lastPunch == null)
+                        {
+                            status = "unknown";
+                        }
+                        else if (lastPunch.IsPunchIn == true)
+                        {
+                            status = "Punched In";
+                        }
+                        sw.WriteLine("Name: " + fullname);
+                        sw.WriteLine("Department: " + depname);
+                        sw.WriteLine("Status: " + status);
+                    }
+                }
+                sw.Close();
+                MessageBox.Show("Sucessfully Exported to Employees.txt");
+            }
+            catch (System.IO.FileNotFoundException)
+            {
+                MessageBox.Show("File Not Found");
+            }
         }
 
         private void closeToolStripMenuItem_Click(object sender, EventArgs e)
@@ -43,20 +80,96 @@ namespace ProjectC
         {
             bool flag = true; //if true, means all feilds are filled 
             //Check for empty textboxes or unselected departments
-            flag = Check_If_Empty(container1, Dep_new);
+            flag = Check_If_Empty(container1, departmentsddlNew);
             //End of check
 
             if (flag)
             {
+                var employee = new Employee()
+                {
+                    departmentId = (int)departmentsddlNew.SelectedValue,
+                    firstname = first_New.Text.Trim(),
+                    lastname = last_New.Text.Trim(),
+                };
+                db.Employees.Add(employee);
+                db.SaveChanges();
+                updateTable();
                 MessageBox.Show("Employee Added Successfully", "Success", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
 
             }
 
         }
 
+        private void updateTable()
+        {
+            dataGridView1.DataSource = typeof(List<Employee>);
+            dataGridView1.DataSource = employeeTableAdapter.GetData();
+        }
+
         private void Form1_Load(object sender, EventArgs e)
         {
+            // TODO: This line of code loads data into the 'hRSystemDataSet.Employee' table. You can move, or remove it, as needed.
+            this.employeeTableAdapter.Fill(this.hRSystemDataSet.Employee);
+            // TODO: This line of code loads data into the 'hRSystemDataSet.Department' table. You can move, or remove it, as needed.
+            this.departmentTableAdapter.Fill(this.hRSystemDataSet.Department);
+            // TODO: This line of code loads data into the 'hRSystemDataSet.Department' table. You can move, or remove it, as needed.
+            this.departmentTableAdapter.Fill(this.hRSystemDataSet.Department);
+            // TODO: This line of code loads data into the 'hRSystemDataSet.Employee' table. You can move, or remove it, as needed.
+            this.employeeTableAdapter.Fill(this.hRSystemDataSet.Employee);
+
+            var employeesList =db.Employees.ToList();
+            foreach (var employee in employeesList)
+            {
+                var lastPunch=employee.PunchInOuts.LastOrDefault();
+                var isIn = lastPunch==null || lastPunch.IsPunchOut == null || lastPunch.IsPunchOut == true;
+                var button = new Button();
+                button.Height = 100;
+                button.Width = 150;
+                button.Text = employee.firstname + " " + employee.lastname + "\r\n" + "Punch " + (isIn ? "In" : "Out");
+                button.Tag = employee.Id;
+                button.Click += Button_Click;
+                flowLayoutPanel1.Controls.Add(button);
+            }
             container2.Height = 520;
+        }
+
+        private void Button_Click(object sender, EventArgs e)
+        {
+            var button = sender as Button;
+            var employeeId = (int)button.Tag;
+            var employee = db.Employees.Where(emp=>emp.Id==employeeId).FirstOrDefault();
+            var lastPunch=employee.PunchInOuts.LastOrDefault();
+            if (lastPunch == null)
+            {
+                var punch = new PunchInOut()
+                {
+                    IsPunchIn = true,
+                    PunchInDate = DateTime.Now,
+                };
+                employee.PunchInOuts.Add(punch);
+                button.Text = employee.firstname + " " + employee.lastname + "\r\n" + "Punch Out";
+            }
+            else
+            {
+                var isIn = lastPunch.IsPunchOut == true;
+                if (isIn)
+                {
+                    var newPunch = new PunchInOut()
+                    {
+                        IsPunchIn = true,
+                        PunchInDate = DateTime.Now
+                    };
+                    employee.PunchInOuts.Add(newPunch);
+                }
+                else
+                {
+                    lastPunch.IsPunchIn = false;
+                    lastPunch.IsPunchOut = true;
+                    lastPunch.PunchOutDate = DateTime.Now;
+                }
+                button.Text = employee.firstname + " " + employee.lastname + "\r\n" + "Punch " + (isIn ? "In" : "Out");
+            }
+            db.SaveChanges();
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -65,27 +178,31 @@ namespace ProjectC
             if (string.IsNullOrWhiteSpace(edit_Search.Text))
             {
                 MessageBox.Show("Please Fill The Empty Textbox", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
 
             }
-
-
-            bool test = true; //for test purposes, delete later mof
+            int id = -1;
+            if(!int.TryParse(edit_Search.Text,out id))
+            {
+                MessageBox.Show("Id must be a number", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            var employee = db.Employees.Where(emp => emp.Id == id).FirstOrDefault();
+            bool isEmployeeExist = employee != null;  //for test purposes, delete later mof
             //if found
-            if (test)
+            if (isEmployeeExist)
             {
                 edit_Employee_cont.Visible = true;
                 //fill info
 
-                first_Edit.Text = "Mofen";
-                last_Edit.Text = "Mafyofen";
-                ID_Edit.Text = "2015265";
-                dep_Edit.Text = "Dep1";
+                first_Edit.Text = employee.firstname;
+                last_Edit.Text = employee.lastname;
+                dep_Edit.SelectedValue = employee.departmentId;
+                button3.Tag = employee.Id;
             }
             else
             {
-                edit_Employee_cont.Visible = false;
                 MessageBox.Show("Employee Not found!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-
             }
 
         }
@@ -98,7 +215,22 @@ namespace ProjectC
 
             if (flag)
             {
-                MessageBox.Show("Employee Edited Successfully", "Success", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                var employeeId = (int)button3.Tag;
+                var employee = db.Employees.Where(emp => emp.Id == employeeId).FirstOrDefault();
+                if (employee != null)
+                {
+                    employee.firstname = first_Edit.Text;
+                    employee.lastname = last_Edit.Text;
+                    employee.departmentId = (int)dep_Edit.SelectedValue;
+                    db.SaveChanges();
+                    updateTable();
+                    MessageBox.Show("Employee Edited Successfully", "Success", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                }
+                else
+                {
+                    MessageBox.Show("Something went wrong!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+
 
             }
         }
@@ -106,20 +238,33 @@ namespace ProjectC
         private void button5_Click(object sender, EventArgs e)
         {
             //check if ID feild is empty
+            
             if (string.IsNullOrWhiteSpace(del_Search.Text))
             {
                 MessageBox.Show("Please Fill The Empty Textbox", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                
             }
 
-
-            bool test = false; //delete later, just for testing
-            //if found
-            if (test)
+            var id = -1;
+            if (!int.TryParse(del_Search.Text, out id))
             {
-                //delete Employee
-                // end of deelte employee code
-                MessageBox.Show("Employee Deleted successfully", "Success", MessageBoxButtons.OK,MessageBoxIcon.Asterisk);
+                MessageBox.Show("Id must be a number", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            var employee = db.Employees.Where(emp => emp.Id == id).FirstOrDefault();
+
+            bool isEmployeeExist = employee != null; //delete later, just for testing
+            //if found
+            if (isEmployeeExist)
+            {
+                DialogResult dialogResult = MessageBox.Show("Are you sure you want to delete " + employee.firstname + " " + employee.lastname + "?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (dialogResult==DialogResult.Yes)
+                {
+                    db.Employees.Remove(employee);
+                    db.SaveChanges();
+                    updateTable();
+                    MessageBox.Show("Employee Deleted successfully", "Success", MessageBoxButtons.OK,MessageBoxIcon.Asterisk);
+                }
 
             }
             else
@@ -151,6 +296,91 @@ namespace ProjectC
 
             }
             return true;
+        }
+
+        private void tabControl1_Click(object sender, EventArgs e)
+        {
+           
+        }
+
+        private void importFromtxtToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var count = 0;
+            var countSuccess = 0;
+            var errors = "";
+            try
+            {
+                var filename = ShowDialog("Please enter name of the import file?", "Import");
+
+                if (!string.IsNullOrEmpty(filename))
+                {
+                    var sr = new System.IO.StreamReader(filename);
+                    while (!sr.EndOfStream)
+                    {
+                        count++;
+                        var Line = sr.ReadLine();
+                        var info = Line.Split(',');
+                        if (info.Length == 3)
+                        {
+                            try
+                            {
+
+                                var emp = new Employee()
+                                {
+                                    firstname = info[0].Trim(),
+                                    lastname = info[1].Trim(),
+                                    departmentId = int.Parse(info[2].Trim())
+                                };
+                                db.Employees.Add(emp);
+                                countSuccess++;
+                            }
+                            catch (Exception)
+                            {
+                                errors+=("Something went wrong at line " + count + ": " + Line+"\n");
+                            }
+                        }
+                        else
+                        {
+                            errors += ("Missing information at line " + count + ": " + Line+"\n");
+                        }
+
+                    }
+                    sr.Close();
+                    if (errors.Length != 0)
+                    {
+                        MessageBox.Show(errors,"Errors List",MessageBoxButtons.OK,MessageBoxIcon.Error);
+                    }
+                    MessageBox.Show("Imported " + countSuccess + " Records to Database Successfully");
+                    db.SaveChanges();
+                    updateTable(); 
+                }
+            }
+            catch (System.IO.FileNotFoundException)
+            {
+                MessageBox.Show("File Not Found",null, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+        }
+        public static string ShowDialog(string text, string caption)
+        {
+            Form prompt = new Form()
+            {
+                Width = 500,
+                Height = 150,
+                FormBorderStyle = FormBorderStyle.FixedDialog,
+                Text = caption,
+                StartPosition = FormStartPosition.CenterScreen
+            };
+            Label textLabel = new Label() { Left = 50, Top = 20, Text = text };
+            TextBox textBox = new TextBox() { Left = 50, Top = 50, Width = 400 };
+            Button confirmation = new Button() { Text = "Ok", Left = 350, Width = 100, Top = 70, DialogResult = DialogResult.OK };
+            confirmation.Click += (sender, e) => { prompt.Close(); };
+            prompt.Controls.Add(textBox);
+            prompt.Controls.Add(confirmation);
+            prompt.Controls.Add(textLabel);
+            prompt.AcceptButton = confirmation;
+
+            return prompt.ShowDialog() == DialogResult.OK ? textBox.Text : "";
         }
     }
 }

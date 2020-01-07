@@ -33,8 +33,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EntityFramework, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.5.0.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.Entity" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -46,14 +53,56 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Department.cs">
+      <DependentUpon>Employees.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Employee.cs">
+      <DependentUpon>Employees.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Employees.Context.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Employees.Context.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Employees.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Employees.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Employees.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Employees.edmx</DependentUpon>
+    </Compile>
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="HRSystemDataSet.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>HRSystemDataSet.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="HRSystemDataSet1.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>HRSystemDataSet1.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="HRSystemDataSet2.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>HRSystemDataSet2.xsd</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PunchInOut.cs">
+      <DependentUpon>Employees.tt</DependentUpon>
+    </Compile>
+    <Compile Include="sysdiagram.cs">
+      <DependentUpon>Employees.tt</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
@@ -67,6 +116,47 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EntityDeploy Include="Employees.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>Employees.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+    <None Include="Employees.edmx.diagram">
+      <DependentUpon>Employees.edmx</DependentUpon>
+    </None>
+    <None Include="HRSystemDataSet.xsc">
+      <DependentUpon>HRSystemDataSet.xsd</DependentUpon>
+    </None>
+    <None Include="HRSystemDataSet.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>HRSystemDataSet.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="HRSystemDataSet.xss">
+      <DependentUpon>HRSystemDataSet.xsd</DependentUpon>
+    </None>
+    <None Include="HRSystemDataSet1.xsc">
+      <DependentUpon>HRSystemDataSet1.xsd</DependentUpon>
+    </None>
+    <None Include="HRSystemDataSet1.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>HRSystemDataSet1.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="HRSystemDataSet1.xss">
+      <DependentUpon>HRSystemDataSet1.xsd</DependentUpon>
+    </None>
+    <None Include="HRSystemDataSet2.xsc">
+      <DependentUpon>HRSystemDataSet2.xsd</DependentUpon>
+    </None>
+    <None Include="HRSystemDataSet2.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>HRSystemDataSet2.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="HRSystemDataSet2.xss">
+      <DependentUpon>HRSystemDataSet2.xsd</DependentUpon>
+    </None>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -86,6 +176,21 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\remove_user.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Employees.Context.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Employees.Context.cs</LastGenOutput>
+      <DependentUpon>Employees.edmx</DependentUpon>
+    </Content>
+    <Content Include="Employees.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>Employees.edmx</DependentUpon>
+      <LastGenOutput>Employees.cs</LastGenOutput>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
