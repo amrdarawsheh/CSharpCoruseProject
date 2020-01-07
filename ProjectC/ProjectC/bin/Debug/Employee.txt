@@ -4,21 +4,21 @@ Status: Punched In
 Name: Kareem Saleem
 Department: IT
 Status: Punched In
-Name: Jameel Saleem
-Department: Design & Animation
-Status: Punched In
-Name: Saleem Tuffaha
-Department: IT
+Name: Mofen Mafyofen
+Department: Business
 Status: Punched In
 Name: Amr Darawsheh
 Department: IT
 Status: Punched In
 Name: Alina Abu Siam
 Department: IT
-Status: Punched In
+Status: 
 Name: Saeed Shemisan
 Department: Design & Animation
-Status: unknown
+Status: Punched In
 Name: Hamzeh Oweis
 Department: Design & Animation
 Status: Punched In
+Name: Jameel Mjamal
+Department: IT
+Status: unknown
